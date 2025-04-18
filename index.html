@@ -28,40 +28,28 @@
       color: white;
       border-color: #4caf50;
     }
-    .toast {
-      position: fixed;
-      bottom: 1rem;
-      right: 1rem;
-      background: #333;
-      color: #fff;
-      padding: 0.7rem 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      z-index: 10000;
-    }
   </style>
 </head>
 <body>
   <h2>🛡️ Filter-Safe Image Prompt Generator (v2.0)</h2>
   <div class="row">
     <div class="half">
-      <h3>🔧 INPUT</h3>
-      <label for="rawInput">Raw User Intent</label>
+      <label for="rawInput">🔧 Raw User Intent</label>
       <textarea id="rawInput" rows="6" placeholder="e.g., a woman standing on a beach during sunset, wearing a red bikini with cinematic lighting">A full body woman, standing confidently on a beach at sunset, wearing vintage swimwear. Cinematic lighting, retro styling.</textarea>
       <button onclick="enrichWithAgent()">✨ Enrich Prompt with Agent</button>
 
       <label>🎨 Style Tags (Click to Select)</label>
       <div id="styleTags" class="tag-container">
-        <span class="tag" data-value="Photorealistic" title="Highly realistic lighting, reflections, and skin texture">📷 Photorealistic</span>
+        <span class="tag" data-value="Photorealistic">📷 Photorealistic</span>
         <span class="tag" data-value="Anime">🎌 Anime</span>
         <span class="tag" data-value="80s Retro">📼 80s Retro</span>
-        <span class="tag" data-value="Baroque Painting" title="Rich oil texture, dramatic shadows, classical European styling">🖼️ Baroque</span>
+        <span class="tag" data-value="Baroque Painting">🖼️ Baroque</span>
         <span class="tag" data-value="Vintage Magazine">📰 Vintage Magazine</span>
         <span class="tag" data-value="Fantasy Illustration">🐉 Fantasy</span>
         <span class="tag" data-value="DSLR">📸 DSLR</span>
         <span class="tag" data-value="Line Art">✏️ Line Art</span>
         <span class="tag" data-value="Flat Color">🎨 Flat Color</span>
-        <span class="tag" data-value="Cyberpunk" title="Neon-lit, high-contrast, futuristic cityscape">🛸 Cyberpunk</span>
+        <span class="tag" data-value="Cyberpunk">🛸 Cyberpunk</span>
         <span class="tag" data-value="Painterly">🖌️ Painterly</span>
       </div>
 
@@ -86,10 +74,10 @@
         <option>Safe</option>
       </select>
 
-      <h3>🎛 TOGGLES</h3>
-      <input type="checkbox" id="driftLock" checked> DRIFT_LOCK (locks layout + pose)<br>
-      <input type="checkbox" id="suppressionEscape" checked> SUPPRESSION_ESCAPE (uses metaphor)<br>
-      <input type="checkbox" id="failover" checked> FAILOVER_IF_BLOCKED (retry softened)<br>
+      <label>🔘 Modular Toggles</label>
+      <input type="checkbox" id="driftLock" checked> DRIFT_LOCK<br>
+      <input type="checkbox" id="suppressionEscape" checked> SUPPRESSION_ESCAPE<br>
+      <input type="checkbox" id="failover" checked> FAILOVER_IF_BLOCKED<br>
 
       <div class="score-text">🧠 Safety Score:</div>
       <div class="score-bar"><div class="score-fill" id="scoreFill"></div></div>
@@ -97,9 +85,9 @@
     </div>
 
     <div class="half">
-      <h3>📤 OUTPUT</h3>
       <label>📄 Prompt Output</label>
       <div class="safe-output" id="outputArea"></div>
+      <button onclick="generatePrompt()">🧠 Generate Prompt</button>
       <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
     </div>
   </div>
@@ -130,11 +118,6 @@
       });
     });
 
-    document.querySelectorAll("#rawInput, #environment, #outputType, #sensitivity, #driftLock, #suppressionEscape, #failover").forEach(el => {
-      el.addEventListener("input", generatePrompt);
-      el.addEventListener("change", generatePrompt);
-    });
-
     function generatePrompt() {
       let input = document.getElementById('rawInput').value;
       let output = input;
@@ -159,7 +142,6 @@
       const failover = document.getElementById('failover').checked;
 
       let result = `🧱 IMAGE GEN META TEMPLATE\n\n→ ${output.replace(/<[^>]*>?/gm, '')}\n\nType: ${outputType}\nScene: ${env}\nStyle: ${styles}\nSensitivity: ${sens}`;
-
       if (drift) result += `\n→ Maintain same pose, layout, lighting, and angle across generations.`;
       if (escape) result += `\n→ Reframe risky elements as mythological, symbolic, or vintage style.`;
       if (failover) result += `\n→ If blocked, retry with softened rewording.`;
@@ -173,9 +155,9 @@
     function copyToClipboard() {
       const outputText = document.getElementById('outputArea').innerText;
       navigator.clipboard.writeText(outputText).then(() => {
-        showToast("✅ Prompt copied to clipboard!");
+        alert("✅ Prompt copied to clipboard!");
       }).catch(err => {
-        showToast("❌ Failed to copy: " + err);
+        alert("❌ Failed to copy: " + err);
       });
     }
 
@@ -197,16 +179,8 @@
           generatePrompt();
         })
         .catch(error => {
-          showToast("⚠️ Agent error: " + error);
+          alert("❌ Error contacting enrichment agent: " + error);
         });
-    }
-
-    function showToast(message) {
-      const toast = document.createElement('div');
-      toast.textContent = message;
-      toast.className = 'toast';
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
     }
   </script>
 </body>
