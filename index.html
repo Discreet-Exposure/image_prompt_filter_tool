@@ -34,6 +34,12 @@
   <h2>🛠️ Filter-Safe Prompt Generator – Mode Adaptive</h2>
   <div class="row">
     <div class="half">
+      <label>🔁 Prompt Mode</label>
+      <select id="promptMode" onchange="switchMode()">
+        <option value="design" selected>Graphic Design</option>
+        <option value="image">Photographic Image</option>
+      </select>
+
       <label for="rawInput">🔧 Raw User Intent</label>
       <textarea id="rawInput" rows="6"></textarea>
       <button onclick="enrichWithAgent()">✨ Enrich Prompt with Agent</button>
@@ -46,12 +52,6 @@
 
       <label>🖼️ Output Type</label>
       <select id="outputType"></select>
-
-      <label>🔁 Prompt Mode</label>
-      <select id="promptMode" onchange="switchMode()">
-        <option value="design" selected>Graphic Design</option>
-        <option value="image">Photographic Image</option>
-      </select>
 
       <label>🔘 Modular Toggles</label>
       <input type="checkbox" id="driftLock"> CONTINUITY<br>
@@ -78,10 +78,12 @@
 
     const stylesByMode = {
       design: [
-        "Flat Vector", "Minimalist", "Bold Lines", "Art Deco", "Glyph", "Retro Badge"
+        "Flat Vector", "Minimalist", "Bold Lines", "Art Deco", "Glyph", "Retro Badge",
+        "Outline", "Gradient Mesh", "Pixel Art", "High Contrast", "Blueprint", "Infographic"
       ],
       image: [
-        "Photorealistic", "DSLR", "Anime", "Cinematic", "Vintage Film", "Fantasy Illustration"
+        "Photorealistic", "DSLR", "Anime", "Cinematic", "Vintage Film", "Fantasy Illustration",
+        "Macro Lens", "Soft Lighting", "Moody", "Sepia Tone", "Studio Light", "Wide Shot"
       ]
     };
 
@@ -229,7 +231,3 @@
   </script>
 </body>
 </html>
-
-
-
-
