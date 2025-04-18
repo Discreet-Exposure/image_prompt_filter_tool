@@ -14,7 +14,20 @@
     .score-fill { height: 100%; background: #4caf50; width: 0%; transition: width 0.5s; }
     .score-text { font-weight: bold; margin-bottom: 1rem; }
     .flagged-term { background: yellow; border-bottom: 1px dotted red; cursor: help; }
-    .multiselect { height: 120px; }
+    .tag-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .tag {
+      background: #eee;
+      padding: 0.4rem 0.7rem;
+      border-radius: 16px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+    }
+    .tag.selected {
+      background-color: #4caf50;
+      color: white;
+      border-color: #4caf50;
+    }
   </style>
 </head>
 <body>
@@ -25,20 +38,20 @@
       <label>🔧 Raw User Intent</label>
       <textarea id="rawInput" rows="7">A full body woman, standing confidently on a beach at sunset, wearing vintage swimwear. Cinematic lighting, retro styling.</textarea>
 
-      <label>🎨 Style (multi-select)</label>
-      <select id="style" class="multiselect" multiple>
-        <option>Photorealistic</option>
-        <option>Anime</option>
-        <option>80s Retro</option>
-        <option>Baroque Painting</option>
-        <option>Vintage Magazine</option>
-        <option>Fantasy Illustration</option>
-        <option>DSLR</option>
-        <option>Line Art</option>
-        <option>Flat Color</option>
-        <option>Cyberpunk</option>
-        <option>Painterly</option>
-      </select>
+      <label>🎨 Style Tags (Click to Select)</label>
+      <div id="styleTags" class="tag-container">
+        <span class="tag" data-value="Photorealistic" title="Highly realistic photographic rendering">📷 Photorealistic</span>
+        <span class="tag" data-value="Anime" title="Stylized 2D art with sharp lines and expressive eyes">🎌 Anime</span>
+        <span class="tag" data-value="80s Retro" title="Vibrant neon, VHS fuzz, nostalgia-heavy visuals">📼 80s Retro</span>
+        <span class="tag" data-value="Baroque Painting" title="Oil-painted texture, rich shadows, classical composition">🖼️ Baroque</span>
+        <span class="tag" data-value="Vintage Magazine" title="Print-era styling with soft shadows and paper tones">📰 Vintage Magazine</span>
+        <span class="tag" data-value="Fantasy Illustration" title="Painterly strokes, epic scenery, mythical tone">🐉 Fantasy</span>
+        <span class="tag" data-value="DSLR" title="High-resolution depth and light quality">📸 DSLR</span>
+        <span class="tag" data-value="Line Art" title="Flat, outline-based design — ideal for logos or ink work">✏️ Line Art</span>
+        <span class="tag" data-value="Flat Color" title="Minimal shading, bold fills, clear outlines">🎨 Flat Color</span>
+        <span class="tag" data-value="Cyberpunk" title="Futuristic, neon-lit urban sci-fi aesthetic">🛸 Cyberpunk</span>
+        <span class="tag" data-value="Painterly" title="Visible brush strokes, textured surfaces">🖌️ Painterly</span>
+      </div>
 
       <label>🏞️ Scene/Setting</label>
       <input id="environment" type="text" placeholder="e.g., rooftop at night, misty forest path">
@@ -82,6 +95,7 @@
   <script>
     let safeMap = {};
     let flaggedTerms = [];
+    let selectedStyles = new Set();
 
     fetch("full_real_safe_synonym_map.json")
       .then(response => response.json())
@@ -89,6 +103,20 @@
         safeMap = data;
         flaggedTerms = Object.keys(data);
       });
+
+    document.querySelectorAll(".tag").forEach(tag => {
+      tag.addEventListener("click", () => {
+        const val = tag.dataset.value;
+        if (selectedStyles.has(val)) {
+          selectedStyles.delete(val);
+          tag.classList.remove("selected");
+        } else {
+          selectedStyles.add(val);
+          tag.classList.add("selected");
+        }
+        generatePrompt();
+      });
+    });
 
     function generatePrompt() {
       let input = document.getElementById('rawInput').value;
@@ -105,7 +133,7 @@
         }
       });
 
-      const styles = Array.from(document.getElementById('style').selectedOptions).map(o => o.value).join(", ");
+      const styles = Array.from(selectedStyles).join(", ");
       const env = document.getElementById('environment').value;
       const outputType = document.getElementById('outputType').value;
       const sens = document.getElementById('sensitivity').value;
