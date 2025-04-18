@@ -98,7 +98,24 @@
     let flaggedTerms = [];
     let selectedStyles = new Set();
 
-    fetch("full_real_safe_synonym_map.json")
+    fetch("https://discreetexposure.app.n8n.cloud/webhook/f5fd44da-1c8e-4c70-ade0-54e436e5d624", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ input: inputText })
+  })
+  .then(response => response.text())
+  .then(enriched => {
+    try {
+      let parsed = JSON.parse(enriched);
+      document.getElementById('rawInput').value = parsed.output || enriched;
+    } catch (e) {
+      document.getElementById('rawInput').value = enriched;
+    }
+    generatePrompt();
+  })
+  .catch(error => {
+    alert("❌ Error contacting enrichment agent: " + error);
+  });
       .then(response => response.json())
       .then(data => {
         safeMap = data;
@@ -142,7 +159,14 @@
       const escape = document.getElementById('suppressionEscape').checked;
       const failover = document.getElementById('failover').checked;
 
-      let result = `🧱 IMAGE GEN META TEMPLATE\n\n→ ${output.replace(/<[^>]*>?/gm, '')}\n\nType: ${outputType}\nScene: ${env}\nStyle: ${styles}\nSensitivity: ${sens}`;
+      let result = `🧱 IMAGE GEN META TEMPLATE
+
+→ ${output.replace(/<[^>]*>?/gm, '')}
+
+Type: ${outputType}
+Scene: ${env}
+Style: ${styles}
+Sensitivity: ${sens}`;
 
       if (drift) result += `\n→ Maintain same pose, layout, lighting, and angle across generations.`;
       if (escape) result += `\n→ Reframe risky elements as mythological, symbolic, or vintage style.`;
@@ -164,8 +188,8 @@
     }
 
     function enrichWithAgent() {
-      const inputText = document.getElementById('rawInput').value;
-      fetch("https://discreetexposure.app.n8n.cloud/webhook/f5fd44da-1c8e-4c70-ade0-54e436e5d624", {
+  const inputText = document.getElementById('rawInput').value;
+  fetch("https://discreetexposure.app.n8n.cloud/webhook/f5fd44da-1c8e-4c70-ade0-54e436e5d624", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ input: inputText })
