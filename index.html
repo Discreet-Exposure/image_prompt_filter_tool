@@ -184,6 +184,33 @@
         alert("❌ Error contacting enrichment agent: " + error);
       });
     }
-  </script>
+  
+    function enrichWithAgent() {
+      const inputText = document.getElementById('rawInput').value;
+      fetch("https://discreetexposure.app.n8n.cloud/webhook/f5fd44da-1c8e-4c70-ade0-54e436e5d624", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: inputText })
+      })
+      .then(response => response.text())
+      .then(text => {
+        try {
+          let enriched = text;
+          // Try to parse if it's JSON
+          if (text.startsWith('{') || text.startsWith('"')) {
+            const parsed = JSON.parse(text);
+            enriched = parsed.enriched || Object.values(parsed)[0] || text;
+          }
+          document.getElementById('rawInput').value = enriched;
+          generatePrompt();
+        } catch (e) {
+          alert("⚠️ Failed to parse agent response.");
+        }
+      })
+      .catch(error => {
+        alert("❌ Error contacting enrichment agent: " + error);
+      });
+    }
+$1
 </body>
 </html>
