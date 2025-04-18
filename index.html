@@ -7,7 +7,7 @@
   <style>
     body { font-family: sans-serif; padding: 2rem; background: #f8f9fa; }
     textarea, input, select, button { width: 100%; padding: 0.5rem; margin-bottom: 1rem; }
-    .row { display: flex; gap: 2rem; flex-wrap: wrap; } /* increased column spacing */
+    .row { display: flex; gap: 2rem; flex-wrap: wrap; }
     .half { flex: 1 1 48%; }
     .safe-output { white-space: pre-wrap; background: #fff; padding: 1rem; border: 1px solid #ccc; min-height: 200px; }
     .score-bar { height: 24px; background: #ccc; border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
@@ -76,9 +76,9 @@
       </select>
 
       <label>🔘 Modular Toggles</label>
-      <input type="checkbox" id="driftLock" checked> DRIFT_LOCK<br>
-      <input type="checkbox" id="suppressionEscape" checked> SUPPRESSION_ESCAPE<br>
-      <input type="checkbox" id="failover" checked> FAILOVER_IF_BLOCKED<br>
+      <input type="checkbox" id="driftLock" checked> DRIFT_LOCK (locks layout + pose)<br>
+      <input type="checkbox" id="suppressionEscape" checked> SUPPRESSION_ESCAPE (uses metaphor)<br>
+      <input type="checkbox" id="failover" checked> FAILOVER_IF_BLOCKED (retry softened)<br>
 
       <div class="score-text">🧠 Safety Score:</div>
       <div class="score-bar"><div class="score-fill" id="scoreFill"></div></div>
@@ -143,9 +143,10 @@
       const failover = document.getElementById('failover').checked;
 
       let result = `🧱 IMAGE GEN META TEMPLATE\n\n→ ${output.replace(/<[^>]*>?/gm, '')}\n\nType: ${outputType}\nScene: ${env}\nStyle: ${styles}\nSensitivity: ${sens}`;
-      if (drift) result += `\nToggles: DRIFT_LOCK=ON`;
-      if (escape) result += `, SUPPRESSION_ESCAPE=ON`;
-      if (failover) result += `, FAILOVER_IF_BLOCKED=ON`;
+
+      if (drift) result += `\n→ Maintain same pose, layout, lighting, and angle across generations.`;
+      if (escape) result += `\n→ Reframe risky elements as mythological, symbolic, or vintage style.`;
+      if (failover) result += `\n→ If blocked, retry with softened rewording.`;
 
       document.getElementById('outputArea').innerHTML = result;
       const clampedScore = Math.min(Math.round(totalRisk), 100);
@@ -181,4 +182,3 @@
   </script>
 </body>
 </html>
-
