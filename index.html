@@ -34,6 +34,7 @@
   <h2>🛡️ Filter-Safe Image Prompt Generator (v2.0)</h2>
 
   <div class="row">
+    <h3>🔧 INPUT</h3>
     <div class="half">
       <label for="rawInput">🔧 Raw User Intent</label>
       <textarea id="rawInput" rows="6" placeholder="e.g., a woman standing on a beach during sunset, wearing a red bikini with cinematic lighting">A full body woman, standing confidently on a beach at sunset, wearing vintage swimwear. Cinematic lighting, retro styling.</textarea>
@@ -41,16 +42,16 @@
 
       <label>🎨 Style Tags (Click to Select)</label>
       <div id="styleTags" class="tag-container">
-        <span class="tag" data-value="Photorealistic">📷 Photorealistic</span>
+        <span class="tag" data-value="Photorealistic" title="Highly realistic lighting, reflections, and skin texture">📷 Photorealistic</span>
         <span class="tag" data-value="Anime">🎌 Anime</span>
         <span class="tag" data-value="80s Retro">📼 80s Retro</span>
-        <span class="tag" data-value="Baroque Painting">🖼️ Baroque</span>
+        <span class="tag" data-value="Baroque Painting" title="Rich oil texture, dramatic shadows, classical European styling">🖼️ Baroque</span>
         <span class="tag" data-value="Vintage Magazine">📰 Vintage Magazine</span>
         <span class="tag" data-value="Fantasy Illustration">🐉 Fantasy</span>
         <span class="tag" data-value="DSLR">📸 DSLR</span>
         <span class="tag" data-value="Line Art">✏️ Line Art</span>
         <span class="tag" data-value="Flat Color">🎨 Flat Color</span>
-        <span class="tag" data-value="Cyberpunk">🛸 Cyberpunk</span>
+        <span class="tag" data-value="Cyberpunk" title="Neon-lit, high-contrast, futuristic cityscape">🛸 Cyberpunk</span>
         <span class="tag" data-value="Painterly">🖌️ Painterly</span>
       </div>
 
@@ -75,7 +76,8 @@
         <option>Safe</option>
       </select>
 
-      <label>🔘 Modular Toggles</label>
+      <h3>🎛 TOGGLES</h3>
+$1
       <input type="checkbox" id="driftLock" checked> DRIFT_LOCK (locks layout + pose)<br>
       <input type="checkbox" id="suppressionEscape" checked> SUPPRESSION_ESCAPE (uses metaphor)<br>
       <input type="checkbox" id="failover" checked> FAILOVER_IF_BLOCKED (retry softened)<br>
@@ -86,6 +88,7 @@
     </div>
 
     <div class="half">
+      <h3>📤 OUTPUT</h3>
       <label>📄 Prompt Output</label>
       <div class="safe-output" id="outputArea"></div>
       <button onclick="generatePrompt()">🧠 Generate Prompt</button>
@@ -114,7 +117,7 @@
     generatePrompt();
   })
   .catch(error => {
-    alert("❌ Error contacting enrichment agent: " + error);
+    showToast("⚠️ Agent error: " + error);
   });
       .then(response => response.json())
       .then(data => {
@@ -181,9 +184,9 @@ Sensitivity: ${sens}`;
     function copyToClipboard() {
       const outputText = document.getElementById('outputArea').innerText;
       navigator.clipboard.writeText(outputText).then(() => {
-        alert("✅ Prompt copied to clipboard!");
+        showToast("✅ Prompt copied to clipboard!");
       }).catch(err => {
-        alert("❌ Failed to copy: " + err);
+        showToast("❌ Failed to copy: " + err);
       });
     }
 
@@ -203,6 +206,30 @@ Sensitivity: ${sens}`;
         alert("❌ Error contacting enrichment agent: " + error);
       });
     }
-  </script>
+  
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.textContent = message;
+      toast.style.position = 'fixed';
+      toast.style.bottom = '1rem';
+      toast.style.right = '1rem';
+      toast.style.background = '#333';
+      toast.style.color = 'white';
+      toast.style.padding = '0.7rem 1rem';
+      toast.style.borderRadius = '8px';
+      toast.style.zIndex = 9999;
+      toast.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    document.getElementById('rawInput').addEventListener('input', generatePrompt);
+    document.getElementById('environment').addEventListener('input', generatePrompt);
+    document.getElementById('outputType').addEventListener('change', generatePrompt);
+    document.getElementById('sensitivity').addEventListener('change', generatePrompt);
+    document.getElementById('driftLock').addEventListener('change', generatePrompt);
+    document.getElementById('suppressionEscape').addEventListener('change', generatePrompt);
+    document.getElementById('failover').addEventListener('change', generatePrompt);
+$1
 </body>
 </html>
