@@ -7,13 +7,14 @@
   <style>
     body { font-family: sans-serif; padding: 2rem; background: #f8f9fa; }
     textarea, input, select, button { width: 100%; padding: 0.5rem; margin-bottom: 1rem; }
-    .row { display: flex; gap: 1rem; }
-    .half { flex: 1; }
+    .row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .half { flex: 1 1 48%; }
     .safe-output { white-space: pre-wrap; background: #fff; padding: 1rem; border: 1px solid #ccc; min-height: 200px; }
     .score-bar { height: 24px; background: #ccc; border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
     .score-fill { height: 100%; background: #4caf50; width: 0%; transition: width 0.5s; }
     .score-text { font-weight: bold; margin-bottom: 1rem; }
     .flagged-term { background: yellow; border-bottom: 1px dotted red; cursor: help; }
+    .multiselect { height: 120px; }
   </style>
 </head>
 <body>
@@ -22,27 +23,42 @@
   <div class="row">
     <div class="half">
       <label>🔧 Raw User Intent</label>
-      <textarea id="rawInput" rows="5" placeholder="Describe the image you want..."></textarea>
+      <textarea id="rawInput" rows="7">A full body woman, standing confidently on a beach at sunset, wearing vintage swimwear. Cinematic lighting, retro styling.</textarea>
 
-      <label>🎨 Style</label>
-      <select id="style">
+      <label>🎨 Style (multi-select)</label>
+      <select id="style" class="multiselect" multiple>
         <option>Photorealistic</option>
         <option>Anime</option>
         <option>80s Retro</option>
         <option>Baroque Painting</option>
+        <option>Vintage Magazine</option>
+        <option>Fantasy Illustration</option>
+        <option>DSLR</option>
+        <option>Line Art</option>
+        <option>Flat Color</option>
+        <option>Cyberpunk</option>
+        <option>Painterly</option>
       </select>
 
-      <label>🌅 Environment</label>
-      <input id="environment" type="text" placeholder="e.g., beach at sunset">
+      <label>🏞️ Scene/Setting</label>
+      <input id="environment" type="text" placeholder="e.g., rooftop at night, misty forest path">
 
-      <label>🎥 Camera/Framing</label>
-      <input id="camera" type="text" placeholder="e.g., eye-level, wide angle">
+      <label>🖼️ Output Type</label>
+      <select id="outputType">
+        <option>Photo</option>
+        <option>Illustration</option>
+        <option>Sketch</option>
+        <option>Vector Drawing</option>
+        <option>Icon</option>
+        <option>Logo</option>
+        <option>Design Element</option>
+      </select>
 
       <label>🔄 Sensitivity Level</label>
       <select id="sensitivity">
-        <option>Safe</option>
-        <option>Moderate</option>
         <option>Filter-Prone</option>
+        <option>Moderate</option>
+        <option>Safe</option>
       </select>
 
       <label>🔘 Modular Toggles</label>
@@ -89,15 +105,15 @@
         }
       });
 
-      const style = document.getElementById('style').value;
+      const styles = Array.from(document.getElementById('style').selectedOptions).map(o => o.value).join(", ");
       const env = document.getElementById('environment').value;
-      const cam = document.getElementById('camera').value;
+      const outputType = document.getElementById('outputType').value;
       const sens = document.getElementById('sensitivity').value;
       const drift = document.getElementById('driftLock').checked;
       const escape = document.getElementById('suppressionEscape').checked;
       const failover = document.getElementById('failover').checked;
 
-      let result = `🧱 IMAGE GEN META TEMPLATE\n\n→ ${output.replace(/<[^>]*>?/gm, '')}\n\nEnvironment: ${env}\nStyle: ${style}\nCamera: ${cam}\nSensitivity: ${sens}`;
+      let result = `🧱 IMAGE GEN META TEMPLATE\n\n→ ${output.replace(/<[^>]*>?/gm, '')}\n\nType: ${outputType}\nScene: ${env}\nStyle: ${styles}\nSensitivity: ${sens}`;
       if (drift) result += `\nToggles: DRIFT_LOCK=ON`;
       if (escape) result += `, SUPPRESSION_ESCAPE=ON`;
       if (failover) result += `, FAILOVER_IF_BLOCKED=ON`;
