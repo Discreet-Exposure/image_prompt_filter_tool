@@ -28,15 +28,25 @@
       color: white;
       border-color: #4caf50;
     }
+    .toast {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: #333;
+      color: #fff;
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      z-index: 10000;
+    }
   </style>
 </head>
 <body>
   <h2>🛡️ Filter-Safe Image Prompt Generator (v2.0)</h2>
-
   <div class="row">
-    <h3>🔧 INPUT</h3>
     <div class="half">
-      <label for="rawInput">🔧 Raw User Intent</label>
+      <h3>🔧 INPUT</h3>
+      <label for="rawInput">Raw User Intent</label>
       <textarea id="rawInput" rows="6" placeholder="e.g., a woman standing on a beach during sunset, wearing a red bikini with cinematic lighting">A full body woman, standing confidently on a beach at sunset, wearing vintage swimwear. Cinematic lighting, retro styling.</textarea>
       <button onclick="enrichWithAgent()">✨ Enrich Prompt with Agent</button>
 
@@ -77,7 +87,6 @@
       </select>
 
       <h3>🎛 TOGGLES</h3>
-$1
       <input type="checkbox" id="driftLock" checked> DRIFT_LOCK (locks layout + pose)<br>
       <input type="checkbox" id="suppressionEscape" checked> SUPPRESSION_ESCAPE (uses metaphor)<br>
       <input type="checkbox" id="failover" checked> FAILOVER_IF_BLOCKED (retry softened)<br>
@@ -91,7 +100,6 @@ $1
       <h3>📤 OUTPUT</h3>
       <label>📄 Prompt Output</label>
       <div class="safe-output" id="outputArea"></div>
-      <button onclick="generatePrompt()">🧠 Generate Prompt</button>
       <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
     </div>
   </div>
@@ -101,24 +109,7 @@ $1
     let flaggedTerms = [];
     let selectedStyles = new Set();
 
-    fetch("https://discreetexposure.app.n8n.cloud/webhook/f5fd44da-1c8e-4c70-ade0-54e436e5d624", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ input: inputText })
-  })
-  .then(response => response.text())
-  .then(enriched => {
-    try {
-      let parsed = JSON.parse(enriched);
-      document.getElementById('rawInput').value = parsed.output || enriched;
-    } catch (e) {
-      document.getElementById('rawInput').value = enriched;
-    }
-    generatePrompt();
-  })
-  .catch(error => {
-    showToast("⚠️ Agent error: " + error);
-  });
+    fetch("full_real_safe_synonym_map.json")
       .then(response => response.json())
       .then(data => {
         safeMap = data;
@@ -137,6 +128,11 @@ $1
         }
         generatePrompt();
       });
+    });
+
+    document.querySelectorAll("#rawInput, #environment, #outputType, #sensitivity, #driftLock, #suppressionEscape, #failover").forEach(el => {
+      el.addEventListener("input", generatePrompt);
+      el.addEventListener("change", generatePrompt);
     });
 
     function generatePrompt() {
@@ -162,14 +158,7 @@ $1
       const escape = document.getElementById('suppressionEscape').checked;
       const failover = document.getElementById('failover').checked;
 
-      let result = `🧱 IMAGE GEN META TEMPLATE
-
-→ ${output.replace(/<[^>]*>?/gm, '')}
-
-Type: ${outputType}
-Scene: ${env}
-Style: ${styles}
-Sensitivity: ${sens}`;
+      let result = `🧱 IMAGE GEN META TEMPLATE\n\n→ ${output.replace(/<[^>]*>?/gm, '')}\n\nType: ${outputType}\nScene: ${env}\nStyle: ${styles}\nSensitivity: ${sens}`;
 
       if (drift) result += `\n→ Maintain same pose, layout, lighting, and angle across generations.`;
       if (escape) result += `\n→ Reframe risky elements as mythological, symbolic, or vintage style.`;
@@ -191,45 +180,34 @@ Sensitivity: ${sens}`;
     }
 
     function enrichWithAgent() {
-  const inputText = document.getElementById('rawInput').value;
-  fetch("https://discreetexposure.app.n8n.cloud/webhook/f5fd44da-1c8e-4c70-ade0-54e436e5d624", {
+      const inputText = document.getElementById('rawInput').value;
+      fetch("https://discreetexposure.app.n8n.cloud/webhook/f5fd44da-1c8e-4c70-ade0-54e436e5d624", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ input: inputText })
       })
-      .then(response => response.text())
-      .then(enriched => {
-        document.getElementById('rawInput').value = enriched;
-        generatePrompt();
-      })
-      .catch(error => {
-        alert("❌ Error contacting enrichment agent: " + error);
-      });
+        .then(response => response.text())
+        .then(enriched => {
+          try {
+            const parsed = JSON.parse(enriched);
+            document.getElementById('rawInput').value = parsed.output || enriched;
+          } catch (e) {
+            document.getElementById('rawInput').value = enriched;
+          }
+          generatePrompt();
+        })
+        .catch(error => {
+          showToast("⚠️ Agent error: " + error);
+        });
     }
-  
+
     function showToast(message) {
       const toast = document.createElement('div');
       toast.textContent = message;
-      toast.style.position = 'fixed';
-      toast.style.bottom = '1rem';
-      toast.style.right = '1rem';
-      toast.style.background = '#333';
-      toast.style.color = 'white';
-      toast.style.padding = '0.7rem 1rem';
-      toast.style.borderRadius = '8px';
-      toast.style.zIndex = 9999;
-      toast.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+      toast.className = 'toast';
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 3000);
     }
-
-    document.getElementById('rawInput').addEventListener('input', generatePrompt);
-    document.getElementById('environment').addEventListener('input', generatePrompt);
-    document.getElementById('outputType').addEventListener('change', generatePrompt);
-    document.getElementById('sensitivity').addEventListener('change', generatePrompt);
-    document.getElementById('driftLock').addEventListener('change', generatePrompt);
-    document.getElementById('suppressionEscape').addEventListener('change', generatePrompt);
-    document.getElementById('failover').addEventListener('change', generatePrompt);
-$1
+  </script>
 </body>
 </html>
