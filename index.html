@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Prompt Filter-Safe Generator</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f8f9fa; }
+    textarea, input, select, button { width: 100%; padding: 0.5rem; margin-bottom: 1rem; }
+    .row { display: flex; gap: 1rem; }
+    .half { flex: 1; }
+    .safe-output { white-space: pre-wrap; background: #fff; padding: 1rem; border: 1px solid #ccc; min-height: 200px; }
+    .score-bar { height: 24px; background: #ccc; border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
+    .score-fill { height: 100%; background: #4caf50; width: 0%; transition: width 0.5s; }
+    .score-text { font-weight: bold; margin-bottom: 1rem; }
+    .flagged-term { background: yellow; border-bottom: 1px dotted red; cursor: help; }
+  </style>
+</head>
+<body>
+  <h2>🛡️ Filter-Safe Image Prompt Generator (v2.0)</h2>
+
+  <div class="row">
+    <div class="half">
+      <label>🔧 Raw User Intent</label>
+      <textarea id="rawInput" rows="5" placeholder="Describe the image you want..."></textarea>
+
+      <label>🎨 Style</label>
+      <select id="style">
+        <option>Photorealistic</option>
+        <option>Anime</option>
+        <option>80s Retro</option>
+        <option>Baroque Painting</option>
+      </select>
+
+      <label>🌅 Environment</label>
+      <input id="environment" type="text" placeholder="e.g., beach at sunset">
+
+      <label>🎥 Camera/Framing</label>
+      <input id="camera" type="text" placeholder="e.g., eye-level, wide angle">
+
+      <label>🔄 Sensitivity Level</label>
+      <select id="sensitivity">
+        <option>Safe</option>
+        <option>Moderate</option>
+        <option>Filter-Prone</option>
+      </select>
+
+      <label>🔘 Modular Toggles</label>
+      <input type="checkbox" id="driftLock" checked> DRIFT_LOCK<br>
+      <input type="checkbox" id="suppressionEscape" checked> SUPPRESSION_ESCAPE<br>
+      <input type="checkbox" id="failover" checked> FAILOVER_IF_BLOCKED<br>
+
+      <div class="score-text">🧠 Safety Score:</div>
+      <div class="score-bar"><div class="score-fill" id="scoreFill"></div></div>
+      <div id="scoreDisplay">0%</div>
+    </div>
+
+    <div class="half">
+      <label>📄 Prompt Output</label>
+      <div class="safe-output" id="outputArea"></div>
+      <button onclick="generatePrompt()">🧠 Generate Prompt</button>
+      <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    </div>
+  </div>
+
+  <script>
+    let safeMap = {};
+    let flaggedTerms = [];
+
+    fetch("full_real_safe_synonym_map.json")
+      .then(response => response.json())
+      .then(data => {
+        safeMap = data;
+        flaggedTerms = Object.keys(data);
+      });
+
+    function generatePrompt() {
+      let input = document.getElementById('rawInput').value;
+      let output = input;
+      let totalRisk = 0;
+
+      flaggedTerms.forEach(term => {
+        if (output.toLowerCase().includes(term)) {
+          const safeOptions = safeMap[term];
+          const replacement = safeOptions[Math.floor(Math.random() * safeOptions.length)];
+          const regex = new RegExp(term, 'gi');
+          output = output.replace(regex, `<span class='flagged-term' title='Replaced for safety'>${replacement}</span>`);
+          totalRisk += 100 / flaggedTerms.length;
+        }
+      });
+
+      const style = document.getElementById('style').value;
+      const env = document.getElementById('environment').value;
+      const cam = document.getElementById('camera').value;
+      const sens = document.getElementById('sensitivity').value;
+      const drift = document.getElementById('driftLock').checked;
+      const escape = document.getElementById('suppressionEscape').checked;
+      const failover = document.getElementById('failover').checked;
+
+      let result = `🧱 IMAGE GEN META TEMPLATE\n\n→ ${output.replace(/<[^>]*>?/gm, '')}\n\nEnvironment: ${env}\nStyle: ${style}\nCamera: ${cam}\nSensitivity: ${sens}`;
+      if (drift) result += `\nToggles: DRIFT_LOCK=ON`;
+      if (escape) result += `, SUPPRESSION_ESCAPE=ON`;
+      if (failover) result += `, FAILOVER_IF_BLOCKED=ON`;
+
+      document.getElementById('outputArea').innerHTML = result;
+      const clampedScore = Math.min(Math.round(totalRisk), 100);
+      document.getElementById('scoreFill').style.width = `${clampedScore}%`;
+      document.getElementById('scoreDisplay').innerText = `${clampedScore}% of terms adjusted`;
+    }
+
+    function copyToClipboard() {
+      const outputText = document.getElementById('outputArea').innerText;
+      navigator.clipboard.writeText(outputText).then(() => {
+        alert("✅ Prompt copied to clipboard!");
+      }).catch(err => {
+        alert("❌ Failed to copy: " + err);
+      });
+    }
+  </script>
+</body>
+</html>
