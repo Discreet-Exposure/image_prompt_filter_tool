@@ -164,21 +164,21 @@
     }
 
     function enrichWithAgent() {
-      const inputText = document.getElementById('rawInput').value;
-      fetch("https://discreetexposure.app.n8n.cloud/webhook/f5fd44da-1c8e-4c70-ade0-54e436e5d624", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: inputText })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.enriched || typeof data === 'string') {
-          const enrichedText = data.enriched || data;
-          document.getElementById('rawInput').value = enrichedText;
-          generatePrompt();
-        } else {
-          alert("⚠️ Unexpected agent response.");
-        }
+  const inputText = document.getElementById('rawInput').value;
+  fetch("https://discreetexposure.app.n8n.cloud/webhook/f5fd44da-1c8e-4c70-ade0-54e436e5d624", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ input: inputText })
+  })
+  .then(response => response.text())
+  .then(enriched => {
+    document.getElementById('rawInput').value = enriched;
+    generatePrompt();
+  })
+  .catch(error => {
+    alert("❌ Error contacting enrichment agent: " + error);
+  });
+}
       })
       .catch(error => {
         alert("❌ Error contacting enrichment agent: " + error);
@@ -214,3 +214,4 @@
 $1
 </body>
 </html>
+
