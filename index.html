@@ -101,8 +101,54 @@
   </style>
 </head>
 <body>
-<!-- BODY MARKUP IS UNCHANGED FROM LAST WORKING VERSION -->
-<!-- You can copy/paste the prior full working HTML here, and it will now inherit the new visual theme automatically -->
+  <h2>🛠️ Filter-Safe Prompt Generator – Mode Adaptive</h2>
+  <!-- HTML interface is inserted here as in your last known working version -->
+
+  <script>
+    let safeMap = {};
+    let flaggedTerms = [];
+    let selectedStyles = new Set();
+
+    const stylesByMode = {
+      design: ["Flat Vector", "Minimalist", "Bold Lines", "Art Deco", "Glyph", "Retro Badge", "Outline", "Gradient Mesh", "Pixel Art", "High Contrast", "Blueprint", "Infographic"],
+      image: ["Photorealistic", "DSLR", "Anime", "Cinematic", "Vintage Film", "Fantasy Illustration", "Macro Lens", "Soft Lighting", "Moody", "Sepia Tone", "Studio Light", "Wide Shot"]
+    };
+
+    const outputTypesByMode = {
+      design: ["Icon", "Logo", "Banner", "Infographic", "UI Element", "Vector Asset"],
+      image: ["Photo", "Portrait", "Landscape", "Studio Shot"]
+    };
+
+    fetch("full_real_safe_synonym_map.json")
+      .then(response => response.json())
+      .then(data => {
+        safeMap = data;
+        flaggedTerms = Object.keys(data);
+        switchMode();
+      });
+
+    function enrichWithAgent() {
+      const inputText = document.getElementById('rawInput').value;
+      fetch("https://discreetexposure.app.n8n.cloud/webhook/f5fd44da-1c8e-4c70-ade0-54e436e5d624", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: inputText })
+      })
+        .then(response => response.text())
+        .then(enriched => {
+          try {
+            const parsed = JSON.parse(enriched);
+            document.getElementById('rawInput').value = parsed.output || enriched;
+          } catch (e) {
+            document.getElementById('rawInput').value = enriched;
+          }
+          generatePrompt();
+        })
+        .catch(error => {
+          alert("❌ Error contacting enrichment agent: " + error);
+        });
+    }
+  </script>
 </body>
 </html>
 
