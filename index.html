@@ -14,15 +14,13 @@
       --carnal-heat: #F96A4D;
 
       --primary: var(--butterlust);
-      --primary-dark: #e6b848;
-      --bg: #fff9f3;
-      --surface: #ffffff;
-      --surface-alt: #fdfdfd;
-      --border: #e0e0e0;
-      --text: var(--gothic-obscura);
+      --accent: var(--carnal-heat);
+      --background: var(--gothic-obscura);
+      --surface: var(--vicious-violet);
+      --text: var(--brat-trap);
       --font: 'Inter', sans-serif;
-      --radius: 14px;
-      --shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+      --radius: 12px;
+      --shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
 
     * {
@@ -30,19 +28,18 @@
     }
 
     body {
-      font-family: var(--font);
-      background: linear-gradient(to bottom, #fff4e6, #fff9f3);
-      color: var(--text);
       margin: 0;
-      padding: 3rem 2rem;
+      padding: 2rem;
+      background: var(--background);
+      font-family: var(--font);
+      color: var(--text);
     }
 
     h2 {
-      font-size: 2.2rem;
-      font-weight: 700;
-      margin-bottom: 2.5rem;
       text-align: center;
-      color: var(--vicious-violet);
+      font-size: 2rem;
+      color: var(--butterlust);
+      margin-bottom: 2rem;
     }
 
     .row {
@@ -64,69 +61,64 @@
       padding: 2rem;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      transition: transform 0.2s ease;
-    }
-
-    .half:hover {
-      transform: translateY(-2px);
     }
 
     label {
-      display: block;
-      margin-bottom: 0.4rem;
       font-weight: 600;
-      color: var(--vicious-violet);
+      color: var(--butterlust);
+      display: block;
+      margin-bottom: 0.5rem;
     }
 
     textarea, input, select {
-      font: inherit;
       width: 100%;
-      padding: 0.8rem;
+      padding: 0.75rem;
       border-radius: var(--radius);
-      border: 1px solid var(--border);
-      background: var(--surface-alt);
-      margin-bottom: 1.2rem;
+      border: 1px solid var(--butterlust);
+      margin-bottom: 1rem;
+      font: inherit;
+      background-color: var(--gothic-obscura);
+      color: var(--text);
     }
 
     textarea:focus, input:focus, select:focus {
       outline: none;
       border-color: var(--carnal-heat);
-      box-shadow: 0 0 0 3px rgba(249, 106, 77, 0.2);
+      box-shadow: 0 0 0 2px var(--carnal-heat);
     }
 
     button {
-      padding: 0.75rem 1.2rem;
       background: var(--carnal-heat);
+      color: var(--gothic-obscura);
+      font-weight: bold;
       border: none;
       border-radius: var(--radius);
-      color: white;
-      font-weight: 600;
+      padding: 0.75rem 1.2rem;
       cursor: pointer;
-      transition: background 0.2s ease, transform 0.1s ease;
-      margin-top: 0.5rem;
+      margin-right: 0.5rem;
+      transition: background 0.3s ease;
     }
 
     button:hover {
-      background: #e55c3f;
-      transform: translateY(-1px);
+      background: var(--butterlust);
+      color: var(--vicious-violet);
     }
 
     .safe-output {
       white-space: pre-wrap;
       background: var(--gothic-obscura);
-      color: var(--butterlust);
-      padding: 1.2rem;
+      border: 1px solid var(--brat-trap);
+      padding: 1rem;
       border-radius: var(--radius);
-      min-height: 200px;
       font-family: monospace;
       font-size: 0.95rem;
-      margin-bottom: 1rem;
+      min-height: 200px;
+      color: var(--brat-trap);
     }
 
     .score-bar {
       height: 24px;
-      background: #e0e0e0;
+      background: var(--brat-trap);
       border-radius: var(--radius);
       overflow: hidden;
       margin-bottom: 0.5rem;
@@ -134,19 +126,21 @@
 
     .score-fill {
       height: 100%;
-      background: linear-gradient(to right, var(--brat-trap), var(--carnal-heat));
+      background: var(--carnal-heat);
       width: 0%;
       transition: width 0.5s ease-in-out;
     }
 
     .score-text {
-      font-weight: 600;
-      margin: 1rem 0 0.25rem;
+      font-weight: bold;
+      color: var(--butterlust);
+      margin-top: 1rem;
     }
 
     .flagged-term {
       background: var(--butterlust);
       border-bottom: 1px dotted var(--carnal-heat);
+      color: var(--gothic-obscura);
       cursor: help;
     }
 
@@ -159,13 +153,13 @@
 
     .tag {
       background: var(--brat-trap);
+      color: var(--gothic-obscura);
       padding: 0.4rem 0.8rem;
       border-radius: var(--radius);
-      border: 1px solid var(--border);
+      border: 1px solid var(--butterlust);
       font-size: 0.85rem;
-      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background 0.2s ease;
     }
 
     .tag:hover {
@@ -174,7 +168,7 @@
 
     .tag.selected {
       background: var(--carnal-heat);
-      color: white;
+      color: var(--background);
       border-color: var(--carnal-heat);
     }
   </style>
@@ -227,3 +221,4 @@
   </script>
 </body>
 </html>
+
