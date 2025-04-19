@@ -4,99 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prompt Generator – Image & Design Modes</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --butterlust: #FED766;
-      --vicious-violet: #413C58;
-      --gothic-obscura: #0C111D;
-      --brat-trap: #FFD6E0;
-      --carnal-heat: #F96A4D;
-      --primary: var(--butterlust);
-      --accent: var(--carnal-heat);
-      --background: var(--gothic-obscura);
-      --surface: var(--vicious-violet);
-      --text: var(--brat-trap);
-      --font: 'Inter', sans-serif;
-      --radius: 12px;
-      --shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; padding: 2rem;
-      background: var(--background);
-      font-family: var(--font); color: var(--text);
-    }
-    h2 { text-align: center; font-size: 2rem; color: var(--butterlust); margin-bottom: 2rem; }
-    .row {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 2rem; max-width: 1200px; margin: 0 auto;
-    }
-    @media (max-width: 768px) {
-      .row { grid-template-columns: 1fr; }
-    }
-    .half {
-      background: var(--surface); padding: 2rem;
-      border-radius: var(--radius); box-shadow: var(--shadow);
-    }
-    label {
-      font-weight: 600; color: var(--butterlust);
-      display: block; margin-bottom: 0.5rem;
-    }
-    textarea, input, select {
-      width: 100%; padding: 0.75rem; border-radius: var(--radius);
-      border: 1px solid var(--butterlust); margin-bottom: 1rem;
-      font: inherit; background-color: var(--gothic-obscura); color: var(--text);
-    }
-    textarea:focus, input:focus, select:focus {
-      outline: none; border-color: var(--carnal-heat);
-      box-shadow: 0 0 0 2px var(--carnal-heat);
-    }
-    button {
-      background: var(--carnal-heat); color: var(--gothic-obscura);
-      font-weight: bold; border: none; border-radius: var(--radius);
-      padding: 0.75rem 1.2rem; cursor: pointer; margin-right: 0.5rem;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background: var(--butterlust); color: var(--vicious-violet);
-    }
-    .safe-output {
-      white-space: pre-wrap; background: var(--gothic-obscura);
-      border: 1px solid var(--brat-trap); padding: 1rem;
-      border-radius: var(--radius); font-family: monospace;
-      font-size: 0.95rem; min-height: 200px; color: var(--brat-trap);
-    }
-    .score-bar {
-      height: 24px; background: var(--brat-trap);
-      border-radius: var(--radius); overflow: hidden;
-      margin-bottom: 0.5rem;
-    }
-    .score-fill {
-      height: 100%; background: var(--carnal-heat);
-      width: 0%; transition: width 0.5s ease-in-out;
-    }
-    .score-text {
-      font-weight: bold; color: var(--butterlust);
-      margin-top: 1rem;
-    }
-    .flagged-term {
-      background: var(--butterlust); border-bottom: 1px dotted var(--carnal-heat);
-      color: var(--gothic-obscura); cursor: help;
-    }
-    .tag-container {
-      display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;
-    }
+    body { font-family: sans-serif; padding: 2rem; background: #f8f9fa; }
+    textarea, input, select, button { width: 100%; padding: 0.5rem; margin-bottom: 1rem; }
+    .row { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .half { flex: 1 1 48%; }
+    .safe-output { white-space: pre-wrap; background: #fff; padding: 1rem; border: 1px solid #ccc; min-height: 200px; }
+    .score-bar { height: 24px; background: #ccc; border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
+    .score-fill { height: 100%; background: #4caf50; width: 0%; transition: width 0.5s; }
+    .score-text { font-weight: bold; margin-bottom: 1rem; }
+    .flagged-term { background: yellow; border-bottom: 1px dotted red; cursor: help; }
+    .tag-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
     .tag {
-      background: var(--brat-trap); color: var(--gothic-obscura);
-      padding: 0.4rem 0.8rem; border-radius: var(--radius);
-      border: 1px solid var(--butterlust); font-size: 0.85rem; cursor: pointer;
-      transition: background 0.2s ease;
+      background: #eee;
+      padding: 0.4rem 0.7rem;
+      border-radius: 16px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
     }
-    .tag:hover { background: var(--butterlust); }
     .tag.selected {
-      background: var(--carnal-heat); color: var(--background);
-      border-color: var(--carnal-heat);
+      background-color: #4caf50;
+      color: white;
+      border-color: #4caf50;
     }
   </style>
 </head>
@@ -124,11 +54,9 @@
       <select id="outputType"></select>
 
       <label>🔘 Modular Toggles</label>
-      <div style="margin-bottom: 1rem;">
-        <label><input type="checkbox" id="driftLock"> CONTINUITY</label><br>
-        <label><input type="checkbox" id="suppressionEscape"> SUPPRESSION_ESCAPE</label><br>
-        <label><input type="checkbox" id="failover"> FAILOVER_IF_BLOCKED</label>
-      </div>
+      <input type="checkbox" id="driftLock"> CONTINUITY<br>
+      <input type="checkbox" id="suppressionEscape"> SUPPRESSION_ESCAPE<br>
+      <input type="checkbox" id="failover"> FAILOVER_IF_BLOCKED<br>
 
       <div class="score-text">🧠 Safety Score:</div>
       <div class="score-bar"><div class="score-fill" id="scoreFill"></div></div>
@@ -149,13 +77,23 @@
     let selectedStyles = new Set();
 
     const stylesByMode = {
-      design: ["Flat Vector", "Minimalist", "Bold Lines", "Art Deco", "Glyph", "Retro Badge", "Outline", "Gradient Mesh", "Pixel Art", "High Contrast", "Blueprint", "Infographic"],
-      image: ["Photorealistic", "DSLR", "Anime", "Cinematic", "Vintage Film", "Fantasy Illustration", "Macro Lens", "Soft Lighting", "Moody", "Sepia Tone", "Studio Light", "Wide Shot"]
+      design: [
+        "Flat Vector", "Minimalist", "Bold Lines", "Art Deco", "Glyph", "Retro Badge",
+        "Outline", "Gradient Mesh", "Pixel Art", "High Contrast", "Blueprint", "Infographic"
+      ],
+      image: [
+        "Photorealistic", "DSLR", "Anime", "Cinematic", "Vintage Film", "Fantasy Illustration",
+        "Macro Lens", "Soft Lighting", "Moody", "Sepia Tone", "Studio Light", "Wide Shot"
+      ]
     };
 
     const outputTypesByMode = {
-      design: ["Icon", "Logo", "Banner", "Infographic", "UI Element", "Vector Asset"],
-      image: ["Photo", "Portrait", "Landscape", "Studio Shot"]
+      design: [
+        "Icon", "Logo", "Banner", "Infographic", "UI Element", "Vector Asset"
+      ],
+      image: [
+        "Photo", "Portrait", "Landscape", "Studio Shot"
+      ]
     };
 
     fetch("full_real_safe_synonym_map.json")
@@ -293,3 +231,4 @@
   </script>
 </body>
 </html>
+
